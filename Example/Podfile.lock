@@ -1,0 +1,58 @@
+PODS:
+  - AEXML (4.3.3)
+  - FontBlaster (4.1.0)
+  - MenuItemKit (3.1.3)
+  - NFolioReaderKit (2.0.0):
+    - AEXML (= 4.3.3)
+    - FontBlaster (= 4.1.0)
+    - MenuItemKit (= 3.1.3)
+    - Realm (= 10.5.1)
+    - RealmSwift (= 10.5.1)
+    - SSZipArchive (= 2.2.3)
+    - ZFDragableModalTransition (= 0.6)
+  - Nimble (7.3.1)
+  - Quick (1.3.2)
+  - Realm (10.5.1):
+    - Realm/Headers (= 10.5.1)
+  - Realm/Headers (10.5.1)
+  - RealmSwift (10.5.1):
+    - Realm (= 10.5.1)
+  - SSZipArchive (2.2.3)
+  - ZFDragableModalTransition (0.6)
+
+DEPENDENCIES:
+  - NFolioReaderKit (from `../`)
+  - Nimble (= 7.3.1)
+  - Quick (= 1.3.2)
+
+SPEC REPOS:
+  trunk:
+    - AEXML
+    - FontBlaster
+    - MenuItemKit
+    - Nimble
+    - Quick
+    - Realm
+    - RealmSwift
+    - SSZipArchive
+    - ZFDragableModalTransition
+
+EXTERNAL SOURCES:
+  NFolioReaderKit:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  AEXML: 601f41fcaa7bda7605cad153b0f43db9ec006c0f
+  FontBlaster: 127aa66419478d1c62926c7fdb39841633344a45
+  MenuItemKit: 0f850e630b0a3d2bd80fec54db87ce0d2077ada2
+  NFolioReaderKit: f557d9343d22707d91023fd919ddb92a1e26714e
+  Nimble: 04f732da099ea4d153122aec8c2a88fd0c7219ae
+  Quick: 2623cb30d7a7f41ca62f684f679586558f483d46
+  Realm: 77fcb4e0b9f2963ea06f584749a0d7dc9cab95e1
+  RealmSwift: 6abe6aa6cd8b70cc1a87afcb9232cabea74ff1ac
+  SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
+  ZFDragableModalTransition: 0d294eaaba6edfcb9839595de765f9ca06a4b524
+
+PODFILE CHECKSUM: 0d43beb7c2730491a8c6fbab06dc2e670b29c7f1
+
+COCOAPODS: 1.11.3
