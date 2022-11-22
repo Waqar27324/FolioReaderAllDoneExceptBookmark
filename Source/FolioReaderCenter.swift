@@ -1347,7 +1347,7 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
         hideBars()
 
         let menu = FolioReaderFontsMenu(folioReader: folioReader, readerConfig: readerConfig)
-        menu.modalPresentationStyle = .custom
+        menu.modalPresentationStyle = .overCurrentContext
 
         animator = ZFModalTransitionAnimator(modalViewController: menu)
         animator.isDragable = false
