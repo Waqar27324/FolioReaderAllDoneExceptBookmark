@@ -54,6 +54,7 @@ function setFontName(cls) {
     removeClass(elm, "lato");
     removeClass(elm, "lora");
     removeClass(elm, "raleway");
+    removeClass(elm, "ainyiddishi");
     addClass(elm, cls);
 }
 

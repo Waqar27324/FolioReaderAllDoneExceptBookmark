@@ -11,16 +11,18 @@ import UIKit
 public enum FolioReaderFont: Int {
     case andada = 0
     case lato
-    case lora
+//    case lora
     case raleway
+    case ainyiddishi
 
     public static func folioReaderFont(fontName: String) -> FolioReaderFont? {
         var font: FolioReaderFont?
         switch fontName {
         case "andada": font = .andada
         case "lato": font = .lato
-        case "lora": font = .lora
+//        case "lora": font = .lora
         case "raleway": font = .raleway
+        case "ainyiddishi": font = .ainyiddishi
         default: break
         }
         return font
@@ -30,8 +32,9 @@ public enum FolioReaderFont: Int {
         switch self {
         case .andada: return "andada"
         case .lato: return "lato"
-        case .lora: return "lora"
+//        case .lora: return "lora"
         case .raleway: return "raleway"
+        case .ainyiddishi: return "ainyiddishi"
         }
     }
 }
@@ -168,8 +171,9 @@ class FolioReaderFontsMenu: UIViewController, SMSegmentViewDelegate, UIGestureRe
 
         fontName.addSegmentWithTitle("Andada", onSelectionImage: nil, offSelectionImage: nil)
         fontName.addSegmentWithTitle("Lato", onSelectionImage: nil, offSelectionImage: nil)
-        fontName.addSegmentWithTitle("Lora", onSelectionImage: nil, offSelectionImage: nil)
+//        fontName.addSegmentWithTitle("Lora", onSelectionImage: nil, offSelectionImage: nil)
         fontName.addSegmentWithTitle("Raleway", onSelectionImage: nil, offSelectionImage: nil)
+        fontName.addSegmentWithTitle("Ainyiddishi", onSelectionImage: nil, offSelectionImage: nil)
 
 //        fontName.segments[0].titleFont = UIFont(name: "Andada-Regular", size: 18)!
 //        fontName.segments[1].titleFont = UIFont(name: "Lato-Regular", size: 18)!
