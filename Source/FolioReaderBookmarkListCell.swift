@@ -7,51 +7,43 @@
 
 import UIKit
 
-class FolioReaderBookmarkCell: UITableViewCell {
-
-    var indexLabel: UILabel?
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-
-        self.indexLabel = UILabel()
-    }
-
-    func setup(withConfiguration readerConfig: FolioReaderConfig) {
-
-        self.indexLabel?.lineBreakMode = .byWordWrapping
-        self.indexLabel?.numberOfLines = 0
-        self.indexLabel?.translatesAutoresizingMaskIntoConstraints = false
-        self.indexLabel?.font = UIFont(name: "Avenir-Light", size: 17)
-        self.indexLabel?.textColor = readerConfig.menuTextColor
-
-        if let label = self.indexLabel {
-            self.contentView.addSubview(label)
-
-            // Configure cell contraints
-            var constraints = [NSLayoutConstraint]()
-            let views = ["label": label]
-
-            NSLayoutConstraint.constraints(withVisualFormat: "H:|-15-[label]-15-|", options: [], metrics: nil, views: views).forEach {
-                constraints.append($0 as NSLayoutConstraint)
-            }
-
-            NSLayoutConstraint.constraints(withVisualFormat: "V:|-16-[label]-16-|", options: [], metrics: nil, views: views).forEach {
-                constraints.append($0 as NSLayoutConstraint)
-            }
-
-            self.contentView.addConstraints(constraints)
+class FolioReaderBookmarkListCell: UITableViewCell {
+    
+    var bookmarkName: String? {
+        didSet {
+            nameLabel.text = bookmarkName
         }
     }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("storyboards are incompatible with truth and beauty")
+    
+    private let nameLabel = UILabel()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        configureUI()
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
+    private func configureUI() {
+        layoutMargins = UIEdgeInsets.zero
+        preservesSuperviewLayoutMargins = false
+        contentView.backgroundColor = UIColor.clear
+        backgroundColor = UIColor.clear
         
-        // As the `setup` is called at each reuse, make sure the label is added only once to the view hierarchy.
-        self.indexLabel?.removeFromSuperview()
+        nameLabel.lineBreakMode = .byWordWrapping
+        nameLabel.numberOfLines = 0
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.font = UIFont(name: "Avenir-Light", size: 17)
+        nameLabel.textColor = UIColor(rgba: "#767676")
+        
+        contentView.addSubview(nameLabel)
+        nameLabel.translatesAutoresizingMaskIntoConstraints = false
+        nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 15).isActive = true
+        nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -15).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16).isActive = true
+        nameLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16).isActive = true
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("storyboards are incompatible with truth and beauty")
     }
 }

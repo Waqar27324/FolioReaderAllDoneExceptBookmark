@@ -71,7 +71,29 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
     var currentPageNumber: Int = 0
     var pageWidth: CGFloat = 0.0
     var pageHeight: CGFloat = 0.0
+    
+    var bookmarks: [Bookmark] {
+        set {
+            let dictionaryArray = Bookmark.dictionaryArray(from: newValue)
+            UserDefaults.standard.set(dictionaryArray, forKey: "bookmarks_\(bookNameWithoutSpaces)")
+        }
+        
+        get {
+            let dictionaryArray = (UserDefaults.standard.object(forKey: "bookmarks_\(bookNameWithoutSpaces)") as? [[String: Any]]) ?? []
+            return Bookmark.objectArray(from: dictionaryArray)
+        }
+    }
 
+    private var bookNameWithoutSpaces: String {
+        var tokens: [String.SubSequence] = book.name?.split(separator: ".") ?? []
+        tokens = tokens[0].split(separator: " ")
+        var returnValue = ""
+        tokens.forEach { substring in
+            returnValue += substring
+        }
+        return returnValue
+    }
+    
     fileprivate var screenBounds: CGRect!
     fileprivate var pointNow = CGPoint.zero
     fileprivate var pageOffsetRate: CGFloat = 0
@@ -208,6 +230,17 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
         pagesForCurrentPage(currentPage)
         pageIndicatorView?.reloadView(updateShadow: true)
     }
+    
+    open override func viewDidAppear(_ animated: Bool) {
+            super.viewDidAppear(animated)
+            view.isUserInteractionEnabled = false
+            if let contentOffsetY = folioReader.savedPositionForCurrentBook?["pageOffsetY"] as? CGFloat {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                    self?.scrollScrubber?.scrollView()?.setContentOffset(CGPoint(x: 0, y: contentOffsetY), animated: true)
+                    self?.view.isUserInteractionEnabled = true
+                }
+            }
+        }
 
     override open func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -261,6 +294,7 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
     func configureNavBarButtons() {
 
         // Navbar buttons
+        let bookmarkIcon = UIImage(readerImageNamed: "icon-navbar-bookmark")?.ignoreSystemTint(withConfiguration: self.readerConfig)
         let shareIcon = UIImage(readerImageNamed: "icon-navbar-share")?.ignoreSystemTint(withConfiguration: self.readerConfig)
         let audioIcon = UIImage(readerImageNamed: "icon-navbar-tts")?.ignoreSystemTint(withConfiguration: self.readerConfig) //man-speech-icon
         let closeIcon = UIImage(readerImageNamed: "icon-navbar-close")?.ignoreSystemTint(withConfiguration: self.readerConfig)
@@ -287,6 +321,9 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
         font.width = space
 
         rightBarIcons.append(contentsOf: [font])
+        
+        let bookmark = UIBarButtonItem(image: bookmarkIcon, style: .plain, target: self, action: #selector(bookmarkButtonTapped))
+        rightBarIcons.append(bookmark)
         navigationItem.rightBarButtonItems = rightBarIcons
         
         if(self.readerConfig.displayTitle){
@@ -294,6 +331,43 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
         }
     }
 
+    /**
+     Present bookmark name input dialog
+     */
+    @objc
+    func bookmarkButtonTapped(_ sender: UIBarButtonItem) {
+        let alert = UIAlertController(title: "Bookmark", message: "Please enter bookmark name", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Save", style: .default, handler: { [weak self] uiAlertAction in
+            guard let strongSelf = self else { return }
+            
+            let textField = alert.textFields?.first
+            let bookmarkName = textField?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            if bookmarkName.isEmpty {
+                strongSelf.showAlert(title: "Error", message: "Bookmark name cannot be empty!")
+                return
+            }
+    
+            let contentOffset: CGFloat = strongSelf.scrollScrubber?.scrollView()?.contentOffset.y ?? 0.0
+            strongSelf.bookmarks = strongSelf.bookmarks +
+            [Bookmark(name: bookmarkName, pageNumber: strongSelf.currentPageNumber, contentOffsetY: contentOffset)]
+            
+            alert.dismiss(animated: true) {
+                strongSelf.showAlert(title: "Success", message: "Bookmark saved successfully!")
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addTextField { (textField) in
+            textField.text = ""
+        }
+        present(alert, animated: true)
+    }
+    
+    private func showAlert(title: String, message: String) {
+        let successAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        successAlert.addAction(UIAlertAction(title: "OK", style: .cancel))
+        present(successAlert, animated: true)
+    }
+    
     func reloadData() {
         self.loadingView.stopAnimating()
         self.totalPages = book.spine.spineReferences.count
@@ -1326,11 +1400,28 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
 
         let chapter = FolioReaderChapterList(folioReader: folioReader, readerConfig: readerConfig, book: book, delegate: self)
         let highlight = FolioReaderHighlightList(folioReader: folioReader, readerConfig: readerConfig)
+        let bookmark = FolioReaderBookmarkList(folioReader: folioReader, readerConfig: readerConfig)
+        bookmark.bookmarks = bookmarks
+        bookmark.rowTapped = { [weak self] index in
+            guard let strongSelf = self else { return }
+            let bookmark = strongSelf.bookmarks[index]
+            print("\(bookmark.name) tapped")
+            strongSelf.scrollToBookmark(bookmark)
+        }
+        
+        bookmark.rowDeleted = { [weak self] index in
+            guard let strongSelf = self else { return }
+            if !strongSelf.bookmarks.isEmpty {
+                strongSelf.bookmarks.remove(at: index)
+            }
+            bookmark.bookmarks = strongSelf.bookmarks
+        }
         let pageController = PageViewController(folioReader: folioReader, readerConfig: readerConfig)
 
         pageController.viewControllerOne = chapter
         pageController.viewControllerTwo = highlight
-        pageController.segmentedControlItems = [readerConfig.localizedContentsTitle, readerConfig.localizedHighlightsTitle]
+        pageController.viewControllerThree = bookmark
+        pageController.segmentedControlItems = [readerConfig.localizedContentsTitle, readerConfig.localizedHighlightsTitle, readerConfig.localizedBookmarksTitle]
 
         let nav = UINavigationController(rootViewController: pageController)
         nav.modalPresentationStyle = .overFullScreen
@@ -1339,6 +1430,15 @@ open class FolioReaderCenter: UIViewController, UICollectionViewDelegate, UIColl
         present(nav, animated: true, completion: nil)
     }
 
+    private func scrollToBookmark(_ bookmark: Bookmark) {
+        self.collectionView.scrollToItem(
+            at: IndexPath(row: bookmark.pageNumber - 1, section: 0),
+            at: UICollectionView.ScrollPosition(),
+            animated: false)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.scrollScrubber?.scrollView()?.setContentOffset(CGPoint(x: 0, y: bookmark.contentOffsetY), animated: true)
+        }
+    }
     /**
      Present fonts and settings menu
      */

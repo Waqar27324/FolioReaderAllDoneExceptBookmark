@@ -182,7 +182,9 @@ open class FolioReaderConfig: NSObject {
 
     /// Localizes Highlight title
     open var localizedHighlightsTitle = NSLocalizedString("Highlights", comment: "")
-
+    
+    open var localizedBookmarksTitle = NSLocalizedString("Bookmarks", comment: "")
+    
     /// Localizes Content title
     open var localizedContentsTitle = NSLocalizedString("Contents", comment: "")
 

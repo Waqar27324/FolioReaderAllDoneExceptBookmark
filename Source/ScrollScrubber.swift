@@ -240,7 +240,7 @@ class ScrollScrubber: NSObject, UIScrollViewDelegate {
 
     // MARK: - utility methods
 
-    fileprivate func scrollView() -> UIScrollView? {
+    func scrollView() -> UIScrollView? {
         return delegate?.currentPage?.webView?.scrollView
     }
 
